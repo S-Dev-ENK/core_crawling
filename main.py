@@ -173,7 +173,7 @@ def js_re(js):
 ''' MAIN '''
 def url_craw(url, depth):
     
-    if depth == select_depth:    return []
+    if depth == select_depth + 1:    return []
     
     
     file_directory = create_folder(depth, url)
