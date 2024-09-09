@@ -10,7 +10,7 @@ from selenium.webdriver.chrome.options import Options
 chromedriver_path = ""
 craw_url = ""
 save_path = ""
-
+select_depth = 2
 
 
 class stack():
@@ -173,7 +173,7 @@ def js_re(js):
 ''' MAIN '''
 def url_craw(url, depth):
     
-    if depth == 3:    return []
+    if depth == select_depth:    return []
     
     
     file_directory = create_folder(depth, url)
