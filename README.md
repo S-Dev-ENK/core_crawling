@@ -38,3 +38,6 @@ select_depth = 2
 
 ## Error
 - 존재하지 않거나 접근할 수 없는 주소의 경우 terminal에 출력
+  
+<br><br><br>
+
