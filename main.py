@@ -7,9 +7,9 @@ from selenium.webdriver.chrome.options import Options
 
 
 #입력
-chromedriver_path = "C:\\Users\\user\\Downloads\\chromedriver-win64\\chromedriver-win64\\chromedriver.exe"
-craw_url = "https://www.navercorp.com/"
-save_path = "C:\\Users\\user\\Desktop\\result7\\"
+chromedriver_path = ""
+craw_url = ""
+save_path = ""
 
 
 
