@@ -7,10 +7,10 @@ from selenium.webdriver.chrome.options import Options
 
 
 #입력
-chromedriver_path = ""
-craw_url = ""
-save_path = ""
-select_depth = 2
+chromedriver_path = "C:\\Users\\user\\Downloads\\chromedriver-win64\\chromedriver-win64\\chromedriver.exe"
+craw_url = "https://www.naver.com/"
+save_path = "C:\\Users\\user\\Desktop\\yara_dummy\\crawler\\"
+select_depth = 1
 
 
 class stack():
@@ -44,7 +44,7 @@ class stack():
 def sel_option():
 
     options = Options()
-    options.add_argument('--headless')
+    options.add_argument('--headless=old')
     options.add_argument('--disable-gpu')
     options.set_capability('goog:loggingPrefs', {'performance': 'ALL'})
 
