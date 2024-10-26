@@ -1,204 +1,125 @@
-import os, json, time, urllib
+import json, urllib
 from selenium import webdriver
 from bs4 import BeautifulSoup
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
+import requests
 
-
-
-#입력
-chromedriver_path = "C:\\Users\\user\\Downloads\\chromedriver-win64\\chromedriver-win64\\chromedriver.exe"
-craw_url = "https://www.naver.com/"
-save_path = "C:\\Users\\user\\Desktop\\yara_dummy\\crawler\\"
+# 입력
+chromedriver_path = "C:\\Users\\s4\\Desktop\\chromedriver-win64\\chromedriver.exe"
+craw_url = "https://naver.com/"
 select_depth = 1
-
+BACKEND_API_URL = "http://127.0.0.1:8000/apis/malicious-domain/receive-crawler-data"
 
 class stack():
-    
     def __init__(self):
-        
         self.stack = []
         
     def push(self, value):
-        
         self.stack.append(value)
     
     def pop(self):
-        
         if self.isEmpty():
-            
             return IndexError("Stack Empty")
         
         return self.stack.pop()
     
     def isEmpty(self):
-        
         return len(self.stack) == 0
         
     def __str__(self):
-        
         return str(self.stack)
-
 
 ''' Driver/Sel Options '''
 def sel_option():
-
     options = Options()
-    options.add_argument('--headless=old')
     options.add_argument('--disable-gpu')
     options.set_capability('goog:loggingPrefs', {'performance': 'ALL'})
-
-
     service = Service(executable_path=chromedriver_path)
-    
     driver = webdriver.Chrome(service=service, options=options)
-
     return driver
 
-
-''' File Save '''
+''' Filename Generation '''
 def filename(url):
-
     url = url[:100]
-    
     url = str(url).replace('//', '_')
     url = str(url).replace(':', '')
     url = str(url).replace('/', "_")
     url = str(url).replace('?', '')
     url = str(url).replace('-', '')
-    
     return url
 
-def create_folder(depth, url):
-    
-    url = filename(url)
-    
-    file_directory = save_path + str(depth) + "\\" + str(url)
-    
+''' Send data to Backend '''
+def send_to_backend(url, combined_data):
+    payload = {
+        "url": url,
+        "result": combined_data
+    }
     try:
-        
-        os.makedirs(file_directory)
-            
-    except:
-        
-        pass
-        
-    return file_directory
+        response = requests.post(BACKEND_API_URL, json=payload)
+        print(f"Backend response: {response.json()}")
+    except Exception as e:
+        print(f"Error sending data to backend: {e}")
 
-def file_save(html, file_name, file_direc):
-    
-    if html:
-        
-        file_name = file_direc + "\\" + file_name + ".txt"
-        with open(file_name, 'a', encoding='utf-8') as file:
-            
-            file.write(html)
-
-
-''' next Depth url in Stack '''
-def url_parser(html, depth, file_direc):
-    
-    file_save(html, "html", file_direc)
-    
+''' URL Parser '''
+def url_parser(response, depth):
+    html = response.get("body")
     html = BeautifulSoup(html, "lxml")
+    
+    url_link = set()
     for tag in html.find_all("a", href=True):
-            
         href = tag["href"]
-        
-        if href.startswith(("http")):    
-            
-            url_stack.push([href, depth+1])
-        
-        else:    
-            
-            continue
+        if href.startswith(("http")):
+            url_link.add(href)
+    
+    for link in url_link:
+        url_stack.push([link, depth+1])
 
-
-''' Js '''
-def js_craw(logs, file_direc):
+''' Collect html/JS response into a single dictionary '''
+def craw(url, depth):
+    combined_data = {}
+    driver.get(url)
+    
+    logs = driver.get_log('performance')
     
     for log in logs:
+        message = json.loads(log["message"])
+        message = message["message"]
         
-        try:
+        if message.get("method") == "Network.responseReceived":
+            mimeType_list = {"text/html", "text/javascript", "application/javascript"}
+            mimeType = message.get("params").get("response").get("mimeType")
             
-            message = log.get("message")
-            message = json.loads(message).get("message")
+            if mimeType in mimeType_list:
+                request_id = message["params"]["requestId"]
+                response = driver.execute_cdp_cmd('Network.getResponseBody', {'requestId': request_id})
                 
-            method = message.get("method")
+                file_url = message.get("params").get("response").get("url")
+                file_name = filename(file_url)
                 
-            if method == "Network.responseReceived":
-                    
-                mimeType = message.get("params").get("response").get("mimeType")
-                    
-                mimeType_list = {"text/html", "text/javascript", "application/javascript"}
-                if mimeType in mimeType_list:
-                        
-                    url = message.get("params").get("response").get("url")
-                    
-                    try:
-                    
-                        js_file = js_re(url)
-                        
-                        file_name = filename(url)
-                        file_save(js_file, file_name, file_direc)
-                    
-                    except:
-                        
-                        raise NameError("js_file Error")
-                            
-        except:
-            
-            raise NameError("js_craw Error")
-
-def js_re(js):
+                # Save the content in the combined_data dictionary
+                if mimeType == "text/html":
+                    combined_data[f"{file_name}"] = response.get("body")
+                    url_parser(response, depth)
+                elif mimeType in {"text/javascript", "application/javascript"}:
+                    combined_data[f"{file_name}"] = response.get("body")
     
-    headers = {
-                    "user-agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 Edg/128.0.0.0"
-            }   
-    
-    try:
-        
-        request = urllib.request.Request(url=js, headers=headers)
-        response = urllib.request.urlopen(request)
-        
-        return response.read().decode('utf-8')
-    
-    except:
-        
-        print(NameError(js + " js_re Error"))
-    
-        return None
-
+    # Send all collected data to backend
+    send_to_backend(url, combined_data)
 
 ''' MAIN '''
 def url_craw(url, depth):
-    
-    if depth == select_depth + 1:    return []
-    
-    
-    file_directory = create_folder(depth, url)
-    
-    driver.get(url)
-        
-    html = driver.page_source
-    url_parser(html, depth, file_directory)
-        
-    logs = driver.get_log("performance")
-    js_craw(logs, file_directory)
-
-    
-    
-
+    if depth == select_depth + 1:
+        return []
+    craw(url, depth)
+    return []
 
 url_stack = stack()
-
 driver = sel_option()
 url_craw(craw_url, 1)
 
+print(url_stack)
 
 while not url_stack.isEmpty():
-   
     craw_url = url_stack.pop()
-    
     url_craw(craw_url[0], craw_url[1])
-    
