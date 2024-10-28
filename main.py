@@ -6,7 +6,7 @@ from selenium.webdriver.chrome.options import Options
 import requests
 
 # 입력
-chromedriver_path = "C:\\Users\\s4\\Desktop\\chromedriver-win64\\chromedriver.exe"
+chromedriver_path = "C:\\Users\\syc\\Desktop\\chromedriver-win64\\chromedriver.exe"
 craw_url = "https://naver.com/"
 select_depth = 1
 BACKEND_API_URL = "http://127.0.0.1:8000/apis/malicious-domain/receive-crawler-data"
@@ -57,7 +57,6 @@ def send_to_backend(url, combined_data):
     }
     try:
         response = requests.post(BACKEND_API_URL, json=payload)
-        print(f"Backend response: {response.json()}")
     except Exception as e:
         print(f"Error sending data to backend: {e}")
 
@@ -117,8 +116,6 @@ def url_craw(url, depth):
 url_stack = stack()
 driver = sel_option()
 url_craw(craw_url, 1)
-
-print(url_stack)
 
 while not url_stack.isEmpty():
     craw_url = url_stack.pop()
