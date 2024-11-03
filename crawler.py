@@ -67,7 +67,20 @@ def url_parser(response, depth, url_stack):
     for link in url_link:
         url_stack.push([link, depth+1])
 
+def check_server(url):
+    
+    headers = { "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0"}
+    response = requests.get(url, headers=headers)
+    
+    return response
+
 def craw(url, uuid, driver):
+    
+    res = check_server(url)
+    if res.status_code != 200:
+    
+        print("server error")
+    
     url_stack = Stack()
     combined_data = {}
     driver.get(url)
