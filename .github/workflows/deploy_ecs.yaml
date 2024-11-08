@@ -1,4 +1,4 @@
-name: Core Crawling Deploy to ECS
+name: Deploy Core Crawling to ECS
 
 on:
   push:
