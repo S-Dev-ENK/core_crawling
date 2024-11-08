@@ -2,12 +2,16 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from crawler import sel_option, craw
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI(title="Crawler Service")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8000", "http://localhost:8001"],
+    allow_origins=[f"http://{os.getenv('PUBLIC_IP')}:{os.getenv('BACKEND_PORT')}"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

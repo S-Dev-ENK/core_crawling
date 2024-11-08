@@ -8,9 +8,9 @@ on:
 
 env:
   AWS_REGION: ap-northeast-2
-  ECR_REPOSITORY: core-crawling-service
-  ECS_SERVICE: core-crawling-service
-  ECS_CLUSTER: core-crawling-cluster
+  ECR_REPOSITORY: enk-crawler-service
+  ECS_SERVICE: enk-crawler-service
+  ECS_CLUSTER: enk-crawler-service
   CONTAINER_NAME: core-crawling-container
 
 jobs:
