@@ -20,6 +20,10 @@ app.add_middleware(
 class URLRequest(BaseModel):
     url: str
     uuid: str
+    
+@app.get("/")
+async def root():
+    return {"message": "Crawler Service is running"}
 
 @app.post("/crawl")
 async def crawl_url(request: URLRequest):
