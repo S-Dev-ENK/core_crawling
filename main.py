@@ -11,7 +11,7 @@ app = FastAPI(title="Crawler Service")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[f"http://{os.getenv('PUBLIC_IP')}:{os.getenv('BACKEND_PORT')}"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

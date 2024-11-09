@@ -1,0 +1,21 @@
+{
+    "core-crawling": {
+      "image": ":core-crawling.latest",
+      "ports": {
+        "8001": "HTTP"
+      },
+      "publicEndpoint": {
+        "containerName": "core-crawling",
+        "containerPort": 8001,
+        "healthCheck": {
+          "path": "/docs",
+          "intervalSeconds": 30
+        }
+      },
+      "environment": {
+        "PUBLIC_IP": "${PUBLIC_IP}",
+        "BACKEND_PORT": "${BACKEND_PORT}",
+        "CORE_PORT": "${CORE_PORT}"
+      }
+    }
+  }

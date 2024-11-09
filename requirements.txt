@@ -2,5 +2,6 @@ fastapi
 uvicorn
 selenium
 beautifulsoup4
-lxml
+python-dotenv
 requests
+lxml
