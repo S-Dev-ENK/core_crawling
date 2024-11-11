@@ -1,8 +1,4 @@
 {
     "containerName": "core-crawling",
-    "containerPort": 8001,
-    "healthCheck": {
-      "path": "/",
-      "intervalSeconds": 30
-    }
+    "containerPort": 8001
 }
