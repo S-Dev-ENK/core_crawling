@@ -23,6 +23,7 @@ class URLRequest(BaseModel):
     
 @app.get("/")
 async def root():
+    print("크롤러 동작 확인")
     return {"message": "Crawler Service is running"}
 
 @app.post("/crawl")
