@@ -13,7 +13,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],
 )
 
@@ -25,10 +25,11 @@ class URLRequest(BaseModel):
 async def root():
     return {"message": "Crawler Service is running"}
 
-@app.post("/crawl")
+@app.post("/crawl/")
 async def crawl_url(request: URLRequest):
-    print(f"크롤링 시작 URL: {request.url}, UUID: {request.uuid}")
+    driver = None
     try:
+        print(f"크롤링 시작 URL: {request.url}, UUID: {request.uuid}")
         print("Selenium 드라이버 초기화 시작")
         driver = sel_option()
         print("드라이버 초기화 완료")
@@ -37,10 +38,11 @@ async def crawl_url(request: URLRequest):
         result = craw(request.url, request.uuid, driver)
         print("크롤링 완료")
         
-        driver.quit()
+        if driver:
+            driver.quit()
         return {"status": "success", "data": result}
     except Exception as e:
         print(f"크롤링 중 오류 발생: {str(e)}")
         if driver:
             driver.quit()
-        raise HTTPException(status_code=500, detail=f"크롤링 오류: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
