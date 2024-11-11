@@ -25,7 +25,7 @@ class URLRequest(BaseModel):
 async def root():
     return {"message": "Crawler Service is running"}
 
-@app.post("/crawl/")
+@app.post("/crawl")
 async def crawl_url(request: URLRequest):
     driver = None
     try:
