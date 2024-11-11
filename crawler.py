@@ -120,7 +120,7 @@ def send_to_core(url, uuid, combined_data):
     }
     try:
         response = requests.post(
-            "http://localhost:8001/receive-crawler-data",
+            "http://13.125.218.206:8002/receive-crawler-data",
             json=payload
         )
         if response.status_code != 200:
