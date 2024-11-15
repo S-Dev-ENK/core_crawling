@@ -31,5 +31,5 @@ COPY . .
 # 포트 노출
 EXPOSE 8001
 
-# 애플리케이션 실행
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"]
+# 애플리케이션 실행 (재시작 정책 추가)
+ENTRYPOINT ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001", "--reload", "--workers", "4", "--timeout-keep-alive", "300"]

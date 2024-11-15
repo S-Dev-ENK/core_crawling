@@ -29,16 +29,21 @@ def sel_option():
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--disable-dev-shm-usage')
     chrome_options.add_argument('--disable-gpu')
+    chrome_options.add_argument('--disable-extensions')
     chrome_options.add_argument('--remote-debugging-port=9222')
-    
+    chrome_options.add_argument('--disable-setuid-sandbox')
+    chrome_options.binary_location = '/usr/bin/chromium-browser'
+
     # CDP 로깅 활성화
     chrome_options.set_capability('goog:loggingPrefs', {
         'performance': 'ALL'
     })
     
-    service = Service()
+    service = Service('/usr/local/bin/chromedriver')
     driver = webdriver.Chrome(service=service, options=chrome_options)
     
+    driver.set_page_load_timeout(300)  # 5분
+    driver.implicitly_wait(300)  # 5분
     # CDP 명령어 활성화
     driver.execute_cdp_cmd('Network.enable', {})
     driver.execute_cdp_cmd('Performance.enable', {})
@@ -70,7 +75,7 @@ def url_parser(response, depth, url_stack):
 def check_server(url):
     
     headers = { "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0"}
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, timeout=300)
     
     return response
 
@@ -120,7 +125,7 @@ def send_to_core(url, uuid, combined_data):
     }
     try:
         response = requests.post(
-            "http://13.125.218.206:8002/receive-crawler-data",
+            "http://172.26.10.213:8002/receive-crawler-data",
             json=payload
         )
         if response.status_code != 200:

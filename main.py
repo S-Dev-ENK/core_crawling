@@ -40,6 +40,8 @@ async def crawl_url(request: URLRequest):
         
         if driver:
             driver.quit()
+        response = {"status": "success", "data": result}
+        print(f"응답 전송: {response}")  # 응답 로깅 추가
         return {"status": "success", "data": result}
     except Exception as e:
         print(f"크롤링 중 오류 발생: {str(e)}")
