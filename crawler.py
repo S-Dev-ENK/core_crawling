@@ -59,8 +59,8 @@ def filename(url):
     url = str(url).replace('-', '')
     return url
 
-def url_parser(response, depth, url_stack):
-    html = response.get("body")
+def url_parser(html, depth, url_stack):
+    
     html = BeautifulSoup(html, "lxml")
     
     url_link = set()
@@ -81,12 +81,13 @@ def check_server(url):
 
 def craw(url, uuid, driver):
     
+    url_stack = Stack()
+    
     res = check_server(url)
     if res.status_code != 200:
     
         print("server error")
     
-    url_stack = Stack()
     combined_data = {}
     driver.get(url)
     
@@ -97,7 +98,7 @@ def craw(url, uuid, driver):
         message = message["message"]
         
         if message.get("method") == "Network.responseReceived":
-            mimeType_list = {"text/html", "text/javascript", "application/javascript"}
+            mimeType_list = {"text/javascript", "application/javascript"}
             mimeType = message.get("params").get("response").get("mimeType")
             
             if mimeType in mimeType_list:
@@ -107,12 +108,12 @@ def craw(url, uuid, driver):
                 file_url = message.get("params").get("response").get("url")
                 file_name = filename(file_url)
                 
-                if mimeType == "text/html":
-                    combined_data[f"{file_name}"] = response.get("body")
-                    url_parser(response, 1, url_stack)  # depth는 1로 고정
-                elif mimeType in {"text/javascript", "application/javascript"}:
+                if mimeType in {"text/javascript", "application/javascript"}:
                     combined_data[f"{file_name}"] = response.get("body")
     
+    html = driver.page_source   #html 출력
+    combined_data[f"{file_name}"] = html
+    url_parser(html, 1, url_stack)
     # 결과를 코어 서버로 전송
     send_to_core(url, uuid, combined_data)
     return combined_data
