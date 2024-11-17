@@ -39,7 +39,7 @@ def sel_option():
         'performance': 'ALL'
     })
     
-    service = Service('/usr/local/bin/chromedriver')
+    service = Service('/usr/bin/chromedriver')
     driver = webdriver.Chrome(service=service, options=chrome_options)
     
     driver.set_page_load_timeout(300)  # 5분
@@ -126,7 +126,7 @@ def send_to_core(url, uuid, combined_data):
     }
     try:
         response = requests.post(
-            "http://172.26.10.213:8002/receive-crawler-data",
+            "http://13.125.218.206:8001/receive-crawler-data",
             json=payload
         )
         if response.status_code != 200:

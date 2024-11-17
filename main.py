@@ -29,10 +29,10 @@ async def root():
 async def crawl_url(request: URLRequest):
     driver = None
     try:
-        print(f"크롤링 시작 URL: {request.url}, UUID: {request.uuid}")
-        print("Selenium 드라이버 초기화 시작")
+        print(f"URL: {request.url}, UUID: {request.uuid}")
+        #print("Selenium 드라이버 초기화 시작")
         driver = sel_option()
-        print("드라이버 초기화 완료")
+        #print("드라이버 초기화 완료")
         
         print("크롤링 시작")
         result = craw(request.url, request.uuid, driver)
@@ -40,9 +40,9 @@ async def crawl_url(request: URLRequest):
         
         if driver:
             driver.quit()
-        response = {"status": "success", "data": result}
-        print(f"응답 전송: {response}")  # 응답 로깅 추가
-        return {"status": "success", "data": result}
+        #response = {"status": "success", "data": result}
+        #print(f"응답 전송: {response}")  # 응답 로깅 추가
+        return {"status": "success"}
     except Exception as e:
         print(f"크롤링 중 오류 발생: {str(e)}")
         if driver:
